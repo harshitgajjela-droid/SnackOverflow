@@ -1,0 +1,37 @@
+import torch
+import cv2
+import numpy
+import matplotlib.pyplot as plt
+from torchvision import transforms
+from PIL import Image
+def visualize_attention(image_path, attention_map):
+    # Load the image
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # Normalize the attention map to [0, 1]
+    attention_map = attention_map - attention_map.min()
+    attention_map = attention_map / (attention_map.max() + 1e-8)
+
+    # Resize the attention map to match the image size
+    attention_map_resized = cv2.resize(attention_map, (image.shape[1], image.shape[0]))
+
+    # Create a heatmap from the attention map
+    heatmap = cv2.applyColorMap((attention_map_resized * 255).astype(np.uint8), cv2.COLORMAP_JET)
+
+    # Overlay the heatmap on the original image
+    overlayed_image = cv2.addWeighted(image, 0.6, heatmap, 0.4, 0)
+
+    # Display the original image and the overlayed image
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1)
+    plt.title('Original Image')
+    plt.imshow(image)
+    plt.axis('off')
+
+    plt.subplot(1, 2, 2)
+    plt.title('Attention Map Overlay')
+    plt.imshow(overlayed_image)
+    plt.axis('off')
+
+    plt.show()
